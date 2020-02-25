@@ -174,11 +174,13 @@ final class VideoPlayer {
           public void onPlayerStateChanged(final boolean playWhenReady, final int playbackState) {
             if (playbackState == Player.STATE_BUFFERING) {
               sendBufferingUpdate();
+              sendBufferingStart();
             } else if (playbackState == Player.STATE_READY) {
               if (!isInitialized) {
                 isInitialized = true;
                 sendInitialized();
               }
+              sendBufferingEnd();
             } else if (playbackState == Player.STATE_ENDED) {
               Map<String, Object> event = new HashMap<>();
               event.put("event", "completed");
@@ -207,7 +209,19 @@ final class VideoPlayer {
     event.put("values", Collections.singletonList(range));
     eventSink.success(event);
   }
+  
+  void sendBufferingStart() {
+    Map<String, Object> event = new HashMap<>();
+    event.put("event", "bufferingStart");
+    eventSink.success(event);
+  }
 
+  void sendBufferingEnd() {
+    Map<String, Object> event = new HashMap<>();
+    event.put("event", "bufferingEnd");
+    eventSink.success(event);
+  }
+  
   @SuppressWarnings("deprecation")
   private static void setAudioAttributes(SimpleExoPlayer exoPlayer) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
